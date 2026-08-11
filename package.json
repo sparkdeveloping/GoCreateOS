@@ -1,0 +1,25 @@
+{
+  "name": "gocreate-os",
+  "version": "6.2.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint:routes": "node scripts/smoke-check.mjs",
+    "migrate:sqlite": "node scripts/import-sqlite.mjs",
+    "build:cloud": "node scripts/build-vercel-cloud.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "next": "15.5.21",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-webcam": "^7.2.0",
+    "firebase-admin": "^13.4.0"
+  },
+  "type": "module"
+}

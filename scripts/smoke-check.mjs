@@ -1,0 +1,1 @@
+import fs from 'node:fs';const must=['app/api/[...path]/route.js','lib/server-store.js','windows/start.ps1','services/sync/run.py'];let bad=0;for(const f of must){if(!fs.existsSync(f)){console.error('Missing',f);bad++}}if(bad)process.exit(1);console.log('GoCreate OS source smoke check passed.');

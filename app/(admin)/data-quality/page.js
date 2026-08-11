@@ -1,0 +1,19 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { ArchiveRestore, SearchCheck, ShieldAlert, Trash2 } from 'lucide-react';
+import AppShell from '@/components/AppShell';
+import { EmptyState, LoadingState, StatusPill } from '@/components/AdminUi';
+import { apiFetch } from '@/lib/client-api';
+
+export default function DataQualityPage(){
+ const [data,setData]=useState(null);const [selected,setSelected]=useState(new Set());const [message,setMessage]=useState('');
+ async function load(){const r=await apiFetch('/api/data-quality',{cache:'no-store'});const x=await r.json();if(r.ok)setData(x);else setMessage(x.error)}
+ useEffect(()=>{load()},[]);
+ async function quarantine(){const r=await apiFetch('/api/data-quality',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({personIds:[...selected]})});const x=await r.json();setMessage(r.ok?`${x.created.length} record(s) moved to quarantine.`:x.error);if(r.ok){setSelected(new Set());load()}}
+ async function action(item,kind){const r=await apiFetch('/api/data-quality',{method:'DELETE',headers:{'content-type':'application/json'},body:JSON.stringify({quarantineId:item.id,action:kind})});const x=await r.json();setMessage(r.ok?(kind==='restore'?'Record restored.':'Record permanently purged.'):x.error);if(r.ok)load()}
+ return <AppShell title="Data quality" subtitle="Find malformed imports, quarantine them safely, review history, then restore or purge" actions={<button className="btn primary" disabled={!selected.size} onClick={quarantine}><ShieldAlert size={18}/>Quarantine selected</button>}>
+  {message&&<div className={`inline-alert ${message.includes('moved')||message.includes('restored')||message.includes('purged')?'success':'error'}`}>{message}</div>}
+  {!data?<LoadingState/>:<section className="quality-grid"><article className="panel card-section"><div className="section-heading"><div><p className="eyebrow">Detected candidates</p><h2>Review before hiding</h2></div><StatusPill tone="yellow">{data.candidates.length}</StatusPill></div>{!data.candidates.length?<EmptyState icon={SearchCheck} title="No malformed records detected" message="Numeric-only, no-contact records will appear here without being deleted automatically."/>:<div className="quality-list">{data.candidates.map(({person,reason})=><label key={person.id}><input type="checkbox" checked={selected.has(person.id)} onChange={e=>setSelected(current=>{const next=new Set(current);e.target.checked?next.add(person.id):next.delete(person.id);return next})}/><span className="avatar-initial">{person.displayName?.[0]||'?'}</span><span><strong>{person.displayName||'Unnamed'}</strong><small>{reason}</small><small>{person.id}</small></span></label>)}</div>}</article>
+   <article className="panel card-section"><div className="section-heading"><div><p className="eyebrow">Quarantine</p><h2>Protected review queue</h2></div><StatusPill tone="blue">{data.quarantine.filter(i=>i.status==='quarantined').length}</StatusPill></div>{!data.quarantine.length?<EmptyState icon={ArchiveRestore} title="Quarantine is empty" message={`Records remain reviewable for ${data.settings.quarantineDays} days before purge is allowed.`}/>:<div className="quarantine-list">{data.quarantine.map(item=><article key={item.id}><div><strong>{item.entityName||item.entityId}</strong><small>{item.reason}</small><small>Status: {item.status} · until {item.quarantineUntil?new Date(item.quarantineUntil).toLocaleDateString():'not set'}</small></div>{item.status==='quarantined'&&<div><button className="btn tiny secondary" onClick={()=>action(item,'restore')}><ArchiveRestore size={15}/>Restore</button><button className="btn tiny danger" onClick={()=>action(item,'purge')}><Trash2 size={15}/>Purge</button></div>}</article>)}</div>}</article></section>}
+ </AppShell>
+}

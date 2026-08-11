@@ -1,0 +1,43 @@
+﻿# Dependencies / builds
+node_modules/
+.next/
+out/
+dist/
+
+# Environment / credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*service-account*.json
+*firebase-admin*.json
+secrets/
+
+# Operational data
+data/
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+backups/
+
+# Runtime
+logs/
+*.log
+*.pid
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+services/sync.venv/
+services/sync/.venv/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

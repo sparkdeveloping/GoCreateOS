@@ -1,0 +1,1 @@
+console.log('GoCreate OS v6.2 uses one canonical GitHub repository for both Windows core and Vercel. No separate cloud package is required. Push this repository; Vercel builds the Next.js application directly.');
